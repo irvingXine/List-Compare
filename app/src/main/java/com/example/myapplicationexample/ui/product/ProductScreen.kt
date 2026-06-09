@@ -26,7 +26,6 @@ import com.example.myapplicationexample.ComparadorApplication
 import com.example.myapplicationexample.data.local.entity.Product
 import com.example.myapplicationexample.data.local.entity.UnitType
 import com.example.myapplicationexample.ui.components.BarcodeScannerView
-import com.example.myapplicationexample.ui.theme.*
 import com.example.myapplicationexample.ui.viewmodel.ProductViewModel
 import com.example.myapplicationexample.ui.viewmodel.factory.ProductViewModelFactory
 
@@ -76,7 +75,6 @@ fun ProductScreen(
             onBarcodeDetected = { code ->
                 barcode = code
                 showScanner = false
-                // Intentar buscar si el producto ya existe
                 val existingProduct = products.find { it.codigo_barras == code }
                 if (existingProduct != null) {
                     editingProduct = existingProduct
@@ -89,11 +87,14 @@ fun ProductScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("PRODUCTOS", color = NothingWhite, fontWeight = FontWeight.Bold, letterSpacing = 2.sp) },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = NothingBlack)
+                    title = { Text("PRODUCTOS", fontWeight = FontWeight.Bold, letterSpacing = 2.sp) },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        titleContentColor = MaterialTheme.colorScheme.onBackground
+                    )
                 )
             },
-            containerColor = NothingBlack
+            containerColor = MaterialTheme.colorScheme.background
         ) { paddingValues ->
             Column(
                 modifier = Modifier
@@ -101,14 +102,13 @@ fun ProductScreen(
                     .padding(paddingValues)
                     .padding(16.dp)
             ) {
-                // Form Section
                 OutlinedTextField(
                     value = productName,
                     onValueChange = { productName = it },
-                    label = { Text("Nombre del producto", color = NothingGrey) },
+                    label = { Text("Nombre del producto") },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = NothingWhite,
-                        unfocusedTextColor = NothingWhite
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -119,10 +119,10 @@ fun ProductScreen(
                     OutlinedTextField(
                         value = barcode,
                         onValueChange = { barcode = it },
-                        label = { Text("Código de barras", color = NothingGrey) },
+                        label = { Text("Código de barras") },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = NothingWhite,
-                            unfocusedTextColor = NothingWhite
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                         ),
                         modifier = Modifier.weight(1f)
                     )
@@ -138,7 +138,10 @@ fun ProductScreen(
                                 }
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = NothingBlue, contentColor = NothingWhite),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            contentColor = MaterialTheme.colorScheme.onSecondary
+                        ),
                         modifier = Modifier.padding(top = 8.dp)
                     ) {
                         Text("SCAN")
@@ -159,8 +162,8 @@ fun ProductScreen(
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitExpanded) },
                         modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = NothingWhite,
-                            unfocusedTextColor = NothingWhite
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                         )
                     )
                     ExposedDropdownMenu(
@@ -186,8 +189,8 @@ fun ProductScreen(
                         onValueChange = { piecesPerPackage = it },
                         label = { Text("Piezas por empaque") },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = NothingWhite,
-                            unfocusedTextColor = NothingWhite
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -212,7 +215,10 @@ fun ProductScreen(
                         barcode = ""
                         piecesPerPackage = ""
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = NothingWhite, contentColor = NothingBlack),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(if (editingProduct == null) "GUARDAR PRODUCTO" else "GUARDAR CAMBIOS", fontWeight = FontWeight.Bold)
@@ -225,22 +231,21 @@ fun ProductScreen(
                         barcode = ""
                         piecesPerPackage = ""
                     }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                        Text("Cancelar edición", color = NothingGrey)
+                        Text("Cancelar edición", color = MaterialTheme.colorScheme.secondary)
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
                 
-                // Search Section
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { viewModel.onSearchQueryChange(it) },
                     placeholder = { Text("Buscar en registrados...") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = NothingGrey) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = NothingWhite,
-                        unfocusedTextColor = NothingWhite
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                     )
                 )
 
@@ -251,7 +256,7 @@ fun ProductScreen(
                         val product = products[index]
                         Card(
                             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                            colors = CardDefaults.cardColors(containerColor = NothingDarkGrey)
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                         ) {
                             Row(
                                 modifier = Modifier.padding(16.dp),
@@ -259,21 +264,25 @@ fun ProductScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(text = product.nombre, color = NothingWhite, fontWeight = FontWeight.Bold)
+                                    Text(
+                                        text = product.nombre, 
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant, 
+                                        fontWeight = FontWeight.Bold
+                                    )
                                     Text(
                                         text = if (product.tipo_unidad == UnitType.EMPAQUE) 
                                             "Unidad: ${product.tipo_unidad} (${product.piezas_por_empaque} pz)" 
                                             else "Unidad: ${product.tipo_unidad}", 
-                                        color = NothingGrey, 
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f), 
                                         fontSize = 12.sp
                                     )
                                 }
                                 Row {
                                     IconButton(onClick = { editingProduct = product }) {
-                                        Icon(Icons.Default.Edit, contentDescription = "Editar", tint = NothingGrey)
+                                        Icon(Icons.Default.Edit, contentDescription = "Editar")
                                     }
                                     IconButton(onClick = { viewModel.deleteProduct(product) }) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = NothingGrey)
+                                        Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                                     }
                                 }
                             }

@@ -11,7 +11,7 @@ import com.example.myapplicationexample.data.local.entity.Supermarket
 
 @Database(
     entities = [Supermarket::class, Product::class, PriceRecord::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

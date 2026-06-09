@@ -18,11 +18,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.myapplicationexample.ui.navigation.NavGraph
 import com.example.myapplicationexample.ui.navigation.TOP_LEVEL_DESTINATIONS
-import com.example.myapplicationexample.ui.theme.NothingBlack
-import com.example.myapplicationexample.ui.theme.NothingDarkGrey
-import com.example.myapplicationexample.ui.theme.NothingGrey
-import com.example.myapplicationexample.ui.theme.NothingRed
-import com.example.myapplicationexample.ui.theme.NothingWhite
 import kotlinx.coroutines.launch
 
 @Composable
@@ -33,28 +28,24 @@ fun MainApp() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // We use ModalNavigationDrawer for the side menu
-    // CompositionLocalProvider can be used to set layout direction to RTL for right drawer
-    // But standard Material3 Drawer is on the left. To make it right, we wrap it.
-    
     CompositionLocalProvider(androidx.compose.ui.platform.LocalLayoutDirection provides androidx.compose.ui.unit.LayoutDirection.Rtl) {
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
                 CompositionLocalProvider(androidx.compose.ui.platform.LocalLayoutDirection provides androidx.compose.ui.unit.LayoutDirection.Ltr) {
                     ModalDrawerSheet(
-                        drawerContainerColor = NothingBlack,
+                        drawerContainerColor = MaterialTheme.colorScheme.surface,
                         modifier = Modifier.width(280.dp)
                     ) {
                         Spacer(Modifier.height(48.dp))
                         Text(
                             "MENÚ",
                             modifier = Modifier.padding(16.dp),
-                            color = NothingWhite,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.titleLarge
                         )
-                        HorizontalDivider(color = NothingDarkGrey)
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                         TOP_LEVEL_DESTINATIONS.forEach { destination ->
                             val isSelected = currentDestination?.hierarchy?.any {
                                 it.hasRoute(destination.route::class)
@@ -75,12 +66,12 @@ fun MainApp() {
                                 },
                                 icon = { Icon(destination.icon, contentDescription = null) },
                                 colors = NavigationDrawerItemDefaults.colors(
-                                    selectedContainerColor = NothingDarkGrey,
+                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                                     unselectedContainerColor = Color.Transparent,
-                                    selectedIconColor = NothingRed,
-                                    unselectedIconColor = NothingGrey,
-                                    selectedTextColor = NothingWhite,
-                                    unselectedTextColor = NothingGrey
+                                    selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 ),
                                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                             )
@@ -92,20 +83,26 @@ fun MainApp() {
             CompositionLocalProvider(androidx.compose.ui.platform.LocalLayoutDirection provides androidx.compose.ui.unit.LayoutDirection.Ltr) {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    containerColor = NothingBlack
+                    containerColor = MaterialTheme.colorScheme.background
                 ) { innerPadding ->
                     Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
                         NavGraph(navController = navController)
                         
-                        // Floating Hamburger Button on Top Right
                         IconButton(
                             onClick = { scope.launch { drawerState.open() } },
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(16.dp)
-                                .background(NothingBlack.copy(alpha = 0.5f), MaterialTheme.shapes.small)
+                                .background(
+                                    MaterialTheme.colorScheme.surface.copy(alpha = 0.5f), 
+                                    MaterialTheme.shapes.small
+                                )
                         ) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = NothingWhite)
+                            Icon(
+                                Icons.Default.Menu, 
+                                contentDescription = "Menu", 
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
                 }

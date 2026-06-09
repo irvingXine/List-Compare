@@ -6,19 +6,23 @@ object PriceCalculator {
     fun calculateUnitPrice(
         price: Double,
         unitType: UnitType,
-        piecesPerPackage: Int? = null
+        piecesPerPackage: Int? = null,
+        cantidadUnidad: Double = 1.0 // Nueva cantidad variable
     ): Double {
+        // Primero normalizamos el precio a la unidad base (1kg, 1L, 1 pieza)
+        val normalizedPrice = if (cantidadUnidad > 0) price / cantidadUnidad else price
+
         return when (unitType) {
             UnitType.EMPAQUE -> {
                 if (piecesPerPackage != null && piecesPerPackage > 0) {
-                    price / piecesPerPackage
+                    normalizedPrice / piecesPerPackage
                 } else {
-                    price
+                    normalizedPrice
                 }
             }
-            UnitType.KILOGRAMO -> price / 10 // Precio por 100g
-            UnitType.LITRO -> price / 10 // Precio por 100ml
-            UnitType.PIEZA -> price
+            UnitType.KILOGRAMO -> normalizedPrice / 10 // Precio por 100g
+            UnitType.LITRO -> normalizedPrice / 10 // Precio por 100ml
+            UnitType.PIEZA -> normalizedPrice
         }
     }
 }

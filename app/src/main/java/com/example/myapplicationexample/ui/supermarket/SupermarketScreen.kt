@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplicationexample.ComparadorApplication
 import com.example.myapplicationexample.data.local.entity.Supermarket
-import com.example.myapplicationexample.ui.theme.*
 import com.example.myapplicationexample.ui.viewmodel.SupermarketViewModel
 import com.example.myapplicationexample.ui.viewmodel.factory.SupermarketViewModelFactory
 
@@ -45,11 +44,14 @@ fun SupermarketScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("TIENDAS", color = NothingWhite, fontWeight = FontWeight.Bold, letterSpacing = 2.sp) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = NothingBlack)
+                title = { Text("TIENDAS", fontWeight = FontWeight.Bold, letterSpacing = 2.sp) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                )
             )
         },
-        containerColor = NothingBlack
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -60,10 +62,10 @@ fun SupermarketScreen(
             OutlinedTextField(
                 value = supermarketName,
                 onValueChange = { supermarketName = it },
-                label = { Text("Nombre de la tienda", color = NothingGrey) },
+                label = { Text("Nombre de la tienda") },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = NothingWhite,
-                    unfocusedTextColor = NothingWhite
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -73,10 +75,10 @@ fun SupermarketScreen(
             OutlinedTextField(
                 value = supermarketAddress,
                 onValueChange = { supermarketAddress = it },
-                label = { Text("Dirección (opcional)", color = NothingGrey) },
+                label = { Text("Dirección (opcional)") },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = NothingWhite,
-                    unfocusedTextColor = NothingWhite
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -94,7 +96,10 @@ fun SupermarketScreen(
                     supermarketName = ""
                     supermarketAddress = ""
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = NothingRed, contentColor = NothingWhite),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.small
             ) {
@@ -107,13 +112,17 @@ fun SupermarketScreen(
                     supermarketName = ""
                     supermarketAddress = ""
                 }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                    Text("Cancelar edición", color = NothingGrey)
+                    Text("Cancelar edición", color = MaterialTheme.colorScheme.secondary)
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
             
-            Text("LISTA DE TIENDAS", color = NothingGrey, fontWeight = FontWeight.SemiBold)
+            Text(
+                "LISTA DE TIENDAS", 
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), 
+                fontWeight = FontWeight.SemiBold
+            )
             Spacer(modifier = Modifier.height(8.dp))
             
             LazyColumn {
@@ -123,7 +132,7 @@ fun SupermarketScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
-                        colors = CardDefaults.cardColors(containerColor = NothingDarkGrey)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                     ) {
                         Row(
                             modifier = Modifier.padding(16.dp),
@@ -131,17 +140,25 @@ fun SupermarketScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(text = supermarket.nombre, color = NothingWhite, fontWeight = FontWeight.Bold)
+                                Text(
+                                    text = supermarket.nombre, 
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant, 
+                                    fontWeight = FontWeight.Bold
+                                )
                                 if (!supermarket.direccion.isNullOrBlank()) {
-                                    Text(text = supermarket.direccion!!, color = NothingGrey, fontSize = 12.sp)
+                                    Text(
+                                        text = supermarket.direccion!!, 
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f), 
+                                        fontSize = 12.sp
+                                    )
                                 }
                             }
                             Row {
                                 IconButton(onClick = { editingSupermarket = supermarket }) {
-                                    Icon(Icons.Default.Edit, contentDescription = "Editar", tint = NothingGrey)
+                                    Icon(Icons.Default.Edit, contentDescription = "Editar")
                                 }
                                 IconButton(onClick = { viewModel.deleteSupermarket(supermarket) }) {
-                                    Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = NothingGrey)
+                                    Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                                 }
                             }
                         }

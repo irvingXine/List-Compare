@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplicationexample.ComparadorApplication
 import com.example.myapplicationexample.data.local.entity.PriceRecord
-import com.example.myapplicationexample.ui.theme.*
+import com.example.myapplicationexample.data.local.entity.UnitType
 import com.example.myapplicationexample.ui.viewmodel.PriceViewModel
 import com.example.myapplicationexample.ui.viewmodel.factory.PriceViewModelFactory
 
@@ -42,15 +42,19 @@ fun PriceEntryScreen(
 
     var selectedSupermarketId by remember { mutableStateOf<Long?>(null) }
     var priceInput by remember { mutableStateOf("") }
+    var cantidadInput by remember { mutableStateOf("1.0") }
     var notesInput by remember { mutableStateOf("") }
     var editingRecord by remember { mutableStateOf<PriceRecord?>(null) }
     
     var productDropdownExpanded by remember { mutableStateOf(false) }
     var supermarketExpanded by remember { mutableStateOf(false) }
 
+    val selectedProduct = filteredProducts.find { it.id == selectedProductId }
+
     LaunchedEffect(editingRecord) {
         if (editingRecord != null) {
             priceInput = editingRecord!!.precio_ingresado.toString()
+            cantidadInput = editingRecord!!.cantidad_unidad.toString()
             notesInput = editingRecord!!.notas ?: ""
             selectedSupermarketId = editingRecord!!.supermarket_id
         }
@@ -66,11 +70,14 @@ fun PriceEntryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("ASIGNAR PRECIOS", color = NothingWhite, fontWeight = FontWeight.Bold, letterSpacing = 2.sp) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = NothingBlack)
+                title = { Text("ASIGNAR PRECIOS", fontWeight = FontWeight.Bold, letterSpacing = 2.sp) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                )
             )
         },
-        containerColor = NothingBlack
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Column(modifier = Modifier.padding(padding).padding(16.dp)) {
             
@@ -88,8 +95,8 @@ fun PriceEntryScreen(
                     label = { Text("Buscar Producto...") },
                     modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable).fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = NothingWhite,
-                        unfocusedTextColor = NothingWhite
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                     ),
                     trailingIcon = {
                         if (selectedProductId != null) {
@@ -97,7 +104,7 @@ fun PriceEntryScreen(
                                 viewModel.selectProduct(null)
                                 viewModel.onProductSearchQueryChange("")
                             }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Limpiar", tint = NothingRed)
+                                Icon(Icons.Default.Delete, contentDescription = "Limpiar", tint = MaterialTheme.colorScheme.error)
                             }
                         }
                     }
@@ -135,8 +142,8 @@ fun PriceEntryScreen(
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = supermarketExpanded) },
                     modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = NothingWhite,
-                        unfocusedTextColor = NothingWhite
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                     )
                 )
                 ExposedDropdownMenu(
@@ -157,16 +164,31 @@ fun PriceEntryScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            OutlinedTextField(
-                value = priceInput,
-                onValueChange = { priceInput = it },
-                label = { Text("Precio ($)") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = NothingWhite,
-                    unfocusedTextColor = NothingWhite
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = priceInput,
+                    onValueChange = { priceInput = it },
+                    label = { Text("Precio ($)") },
+                    modifier = Modifier.weight(1f),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                    )
                 )
-            )
+
+                if (selectedProduct?.tipo_unidad == UnitType.KILOGRAMO || selectedProduct?.tipo_unidad == UnitType.LITRO) {
+                    OutlinedTextField(
+                        value = cantidadInput,
+                        onValueChange = { cantidadInput = it },
+                        label = { Text(if (selectedProduct.tipo_unidad == UnitType.KILOGRAMO) "Kg" else "Litros") },
+                        modifier = Modifier.weight(0.6f),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                        )
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -176,8 +198,8 @@ fun PriceEntryScreen(
                 label = { Text("Notas (específico de tienda)") },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = NothingWhite,
-                    unfocusedTextColor = NothingWhite
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                 )
             )
 
@@ -188,23 +210,30 @@ fun PriceEntryScreen(
                     val pId = selectedProductId
                     val sId = selectedSupermarketId
                     val price = priceInput.toDoubleOrNull()
+                    val cantidad = cantidadInput.toDoubleOrNull() ?: 1.0
                     if (pId != null && sId != null && price != null) {
                         if (editingRecord == null) {
-                            viewModel.addPrice(pId, sId, price, notesInput.ifBlank { null })
+                            viewModel.addPrice(pId, sId, price, cantidad, notesInput.ifBlank { null })
                         } else {
                             viewModel.updatePrice(editingRecord!!.copy(
                                 supermarket_id = sId, 
                                 precio_ingresado = price,
-                                notas = notesInput.ifBlank { null }
+                                cantidad_unidad = cantidad,
+                                notas = notesInput.ifBlank { null },
+                                fecha_registro = System.currentTimeMillis()
                             ))
                             editingRecord = null
                         }
                         priceInput = ""
+                        cantidadInput = "1.0"
                         notesInput = ""
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = NothingRed, contentColor = NothingWhite)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) {
                 Text(if (editingRecord == null) "REGISTRAR PRECIO" else "GUARDAR CAMBIOS")
             }
@@ -213,9 +242,10 @@ fun PriceEntryScreen(
                 TextButton(onClick = {
                     editingRecord = null
                     priceInput = ""
+                    cantidadInput = "1.0"
                     notesInput = ""
                 }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                    Text("Cancelar edición", color = NothingGrey)
+                    Text("Cancelar edición", color = MaterialTheme.colorScheme.secondary)
                 }
             }
 
@@ -223,7 +253,7 @@ fun PriceEntryScreen(
 
             Text(
                 if (selectedProductId != null) "HISTORIAL DE PRECIOS PARA ESTE PRODUCTO" else "ÚLTIMOS PRECIOS REGISTRADOS", 
-                color = NothingGrey, 
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), 
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp
             )
@@ -233,7 +263,7 @@ fun PriceEntryScreen(
                     val entry = priceEntries[index]
                     Card(
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                        colors = CardDefaults.cardColors(containerColor = NothingDarkGrey)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                     ) {
                         Row(
                             modifier = Modifier.padding(16.dp),
@@ -241,19 +271,31 @@ fun PriceEntryScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(entry.product.nombre, color = NothingWhite, fontWeight = FontWeight.Bold)
-                                Text(entry.supermarket.nombre + (if(entry.supermarket.direccion != null) " (${entry.supermarket.direccion})" else ""), color = NothingGrey, fontSize = 12.sp)
+                                Text(
+                                    entry.product.nombre, 
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant, 
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    entry.supermarket.nombre + (if(entry.supermarket.direccion != null) " (${entry.supermarket.direccion})" else ""), 
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f), 
+                                    fontSize = 12.sp
+                                )
+                                Text(
+                                    "Precio: $${entry.record.precio_ingresado} " + (if (entry.record.cantidad_unidad != 1.0) "por ${entry.record.cantidad_unidad}" else ""), 
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f), 
+                                    fontSize = 11.sp
+                                )
                                 if (!entry.record.notas.isNullOrBlank()) {
-                                    Text("Nota: ${entry.record.notas}", color = NothingGrey, fontSize = 11.sp)
+                                    Text("Nota: ${entry.record.notas}", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f), fontSize = 11.sp)
                                 }
                             }
-                            Text("$${entry.record.precio_ingresado}", color = NothingWhite, fontWeight = FontWeight.Bold)
                             Row {
                                 IconButton(onClick = { editingRecord = entry.record }) {
-                                    Icon(Icons.Default.Edit, contentDescription = "Editar", tint = NothingGrey)
+                                    Icon(Icons.Default.Edit, contentDescription = "Editar")
                                 }
                                 IconButton(onClick = { viewModel.deletePrice(entry.record) }) {
-                                    Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = NothingGrey)
+                                    Icon(Icons.Default.Delete, contentDescription = "Borrar")
                                 }
                             }
                         }

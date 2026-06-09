@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "My Application example"
+rootProject.name = "XinesComparer"
 include(":app")

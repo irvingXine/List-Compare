@@ -80,7 +80,7 @@ class PriceViewModel(
         _errorMessage.value = null
     }
 
-    fun addPrice(productId: Long, supermarketId: Long, price: Double, notes: String? = null) {
+    fun addPrice(productId: Long, supermarketId: Long, price: Double, cantidad: Double = 1.0, notes: String? = null) {
         viewModelScope.launch {
             // Check for duplicates
             val allRecords = priceDao.getAllPriceRecords().first()
@@ -96,6 +96,7 @@ class PriceViewModel(
                     product_id = productId,
                     supermarket_id = supermarketId,
                     precio_ingresado = price,
+                    cantidad_unidad = cantidad,
                     fecha_registro = System.currentTimeMillis(),
                     notas = notes
                 )
