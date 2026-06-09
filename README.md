@@ -23,4 +23,4 @@ Aplicación nativa de Android para comparar precios de supermercados, construida
 4. Ejecuta en un dispositivo físico o emulador.
 
 ## Licencia
-Este proyecto está bajo la licencia MIT. Consulta el archivo `LICENSE` para más detalles.
+Este proyecto está bajo la licencia GNU. Consulta el archivo `LICENSE` para más detalles.
